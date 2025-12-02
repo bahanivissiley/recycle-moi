@@ -54,6 +54,7 @@ class ModelInfoResponse(BaseModel):
     Informations sur le modèle
     """
     model_config = ConfigDict(
+        protected_namespaces=(),
         json_schema_extra={
             "example": {
                 "model_version": "1.0",

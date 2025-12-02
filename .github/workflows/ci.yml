@@ -43,15 +43,19 @@ jobs:
         # Tests unitaires (accepter que certains tests échouent si modèle absent)
         pytest tests/ -v --tb=short -x || echo "⚠️ Certains tests ont échoué (normal sans le modèle)"
     
-    - name: 🧪 Run basic imports tests (critiques)
+    - name: 🧪 Test basic imports
       working-directory: ./backend-api
       run: |
-        # Ces tests doivent TOUJOURS passer
+        # Vérifier que les modules de base s'importent
         python -c "import torch; print(f'✅ PyTorch: {torch.__version__}')"
         python -c "import fastapi; print(f'✅ FastAPI: {fastapi.__version__}')"
-        python -c "from src.config import config; print('✅ Config OK')"
-        python -c "from src.models.resnet import create_resnet18; print('✅ Model creation OK')"
-        python -c "from api.main import app; print('✅ FastAPI app OK')"
+        
+        # Tester les imports src/
+        python -c "import sys; sys.path.insert(0, '.'); from src.config import config; print('✅ Config OK')"
+        python -c "import sys; sys.path.insert(0, '.'); from src.models.resnet import create_resnet18; print('✅ Model creation OK')"
+        
+        # Tester l'app FastAPI (le plus important)
+        python -c "import sys; sys.path.insert(0, '.'); from api.main import app; print('✅ FastAPI app OK')"
     
     - name: 🎯 Lint code (optionnel)
       working-directory: ./backend-api
