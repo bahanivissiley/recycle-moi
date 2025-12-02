@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# PyTorch Models (trop lourds pour GitHub)
+*.pth
+*.pt
+*.ckpt
+checkpoints/
+*.h5
+*.pkl
+
+# Datasets (trop lourds)
+dataset/
+data/
+*.csv
+*.json  # Sauf metadata.json qu'on veut garder
+!metadata.json
+!config.json
+!per_class_metrics.json
+
+# Logs
+logs/
+*.log
+
+# Results
+results/
+outputs/
+*.png  # Sauf quelques images importantes
+!architecture.png
+!confusion_matrix.png
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+secrets.yaml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
