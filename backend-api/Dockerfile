@@ -60,11 +60,12 @@ COPY --chown=appuser:appuser . .
 
 USER appuser
 
+# Exposer le port (configurable via variable d'environnement)
 EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
 
-# Commande de démarrage
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Commande de démarrage avec port configurable
+CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}

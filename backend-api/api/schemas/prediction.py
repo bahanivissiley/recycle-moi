@@ -2,20 +2,15 @@
 Schémas Pydantic pour la validation des requêtes/réponses
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Dict
 
 class PredictionResponse(BaseModel):
     """
     Réponse de l'API pour une prédiction
     """
-    success: bool = Field(..., description="Statut de la prédiction")
-    predicted_class: str = Field(..., description="Classe prédite")
-    confidence: float = Field(..., description="Confiance de la prédiction (0-1)", ge=0, le=1)
-    all_probabilities: Dict[str, float] = Field(..., description="Probabilités pour toutes les classes")
-    
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": True,
                 "predicted_class": "plastic",
@@ -31,35 +26,35 @@ class PredictionResponse(BaseModel):
                 }
             }
         }
+    )
+    
+    success: bool = Field(..., description="Statut de la prédiction")
+    predicted_class: str = Field(..., description="Classe prédite")
+    confidence: float = Field(..., description="Confiance de la prédiction (0-1)", ge=0, le=1)
+    all_probabilities: Dict[str, float] = Field(..., description="Probabilités pour toutes les classes")
 
 class ErrorResponse(BaseModel):
     """
     Réponse en cas d'erreur
     """
-    success: bool = False
-    error: str = Field(..., description="Message d'erreur")
-    
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": False,
                 "error": "Invalid image format"
             }
         }
+    )
+    
+    success: bool = False
+    error: str = Field(..., description="Message d'erreur")
 
 class ModelInfoResponse(BaseModel):
     """
     Informations sur le modèle
     """
-    model_version: str
-    architecture: str
-    num_classes: int
-    classes: List[str]
-    test_accuracy: float
-    created_at: str
-    
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "model_version": "1.0",
                 "architecture": "resnet18",
@@ -69,3 +64,11 @@ class ModelInfoResponse(BaseModel):
                 "created_at": "2024-12-02T14:30:00"
             }
         }
+    )
+    
+    model_version: str
+    architecture: str
+    num_classes: int
+    classes: List[str]
+    test_accuracy: float
+    created_at: str

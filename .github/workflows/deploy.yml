@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: recyclemoi-api
+    env: docker
+    dockerfilePath: ./backend-api/Dockerfile
+    dockerContext: ./backend-api
+    region: frankfurt  # ou oregon, singapore selon ta localisation
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        value: "8000"
+    # Volumes pour le modèle (à configurer dans Render dashboard)

@@ -39,3 +39,8 @@ tqdm==4.67.1
 # HTTP Requests (pour healthcheck)
 # ============================================
 requests==2.32.3
+
+# Tests
+pytest==9.0.1
+pytest-cov==7.0.0
+httpx==0.28.1
