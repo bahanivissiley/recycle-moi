@@ -1,0 +1,87 @@
+{
+  "version": "1.0",
+  "created_at": "2025-12-02T13:42:28.989042",
+  "description": "Premier mod\u00e8le production-ready. ResNet18 avec Transfer Learning + Fine-tuning. Entra\u00een\u00e9 sur 17,853 images de d\u00e9chets.",
+  "project": {
+    "name": "Recycle-moi",
+    "version": "1.0.0",
+    "description": "Classification de d\u00e9chets par deep learning"
+  },
+  "model": {
+    "architecture": "resnet18",
+    "pretrained": true,
+    "freeze_backbone": false,
+    "num_classes": 7,
+    "parameters": {
+      "total": 11180103,
+      "trainable": 11180103,
+      "frozen": 0
+    }
+  },
+  "data": {
+    "classes": [
+      "cardboard",
+      "e-waste",
+      "glass",
+      "medical",
+      "metal",
+      "paper",
+      "plastic"
+    ],
+    "num_classes": 7,
+    "normalization": {
+      "mean": [
+        0.649,
+        0.63,
+        0.602
+      ],
+      "std": [
+        0.211,
+        0.212,
+        0.222
+      ]
+    },
+    "image_size": 224,
+    "dataset_size": {
+      "train": 14279,
+      "valid": 1781,
+      "test": 1793,
+      "total": 17853
+    }
+  },
+  "training": {
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "batch_size": 32,
+    "num_epochs": "Transfer Learning (10) + Fine-tuning (5)",
+    "framework": "PyTorch",
+    "pytorch_version": "2.5.1+cu121"
+  },
+  "results": {
+    "test_accuracy": 83.55,
+    "validation_accuracy": 84.95,
+    "per_class_accuracy": {
+      "cardboard": 79.33884297520662,
+      "e-waste": 92.05298013245033,
+      "glass": 82.28346456692913,
+      "medical": 85.27918781725889,
+      "metal": 84.61538461538461,
+      "paper": 81.85185185185185,
+      "plastic": 78.35820895522389
+    },
+    "metrics": {
+      "test_loss": "N/A",
+      "valid_loss": "N/A"
+    }
+  },
+  "hardware": {
+    "device": "NVIDIA GeForce GTX 1060",
+    "cuda_version": "12.1",
+    "training_time": "3h42min"
+  },
+  "files": {
+    "model_file": "best_model.pth",
+    "config_file": "config.yaml",
+    "metadata_file": "metadata.json"
+  }
+}

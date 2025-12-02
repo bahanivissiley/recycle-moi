@@ -1,0 +1,68 @@
+# Configuration du projet Recycle-moi
+project:
+  name: "Recycle-moi"
+  version: "1.0.0"
+  description: "Classification de déchets par deep learning"
+
+# Dataset
+data:
+  data_dir: "/mnt/d/VENV/Recycle moi/dataset"
+  classes:
+    - cardboard
+    - e-waste
+    - glass
+    - medical
+    - metal
+    - paper
+    - plastic
+  num_classes: 7
+  
+  # Stats de normalisation (calculées sur notre dataset)
+  mean: [0.649, 0.630, 0.602]
+  std: [0.211, 0.212, 0.222]
+
+# Modèle
+model:
+  architecture: "resnet18"
+  pretrained: true
+  freeze_backbone: false  # False car on a déjà fine-tuné
+
+# Entraînement
+training:
+  batch_size: 32
+  num_epochs: 10
+  learning_rate: 0.001
+  
+  # Fine-tuning
+  finetune_epochs: 5
+  finetune_lr: 0.00001
+  
+  # Optimizer
+  optimizer: "adam"
+  weight_decay: 0.0001
+  
+  # Scheduler
+  scheduler:
+    type: "step"
+    step_size: 3
+    gamma: 0.5
+  
+  # Early stopping
+  patience: 5
+  min_delta: 0.001
+
+# Hardware
+hardware:
+  device: "cuda"  # cuda ou cpu
+  num_workers: 4
+  pin_memory: true
+
+# Chemins
+paths:
+  checkpoints: "checkpoints"
+  logs: "logs"
+  
+# Logging
+logging:
+  level: "INFO"
+  save_every_n_epochs: 1

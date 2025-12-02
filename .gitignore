@@ -31,18 +31,20 @@ wheels/
 *.pth
 *.pt
 *.ckpt
-checkpoints/
 *.h5
 *.pkl
+
+# EXCEPTION : Garder metadata.json
+!checkpoints/*/metadata.json
+!checkpoints/*/config.yaml
+!checkpoints/*/README.md
+!checkpoints/*/classification_report.txt
+!checkpoints/*/per_class_metrics.json
 
 # Datasets (trop lourds)
 dataset/
 data/
 *.csv
-*.json  # Sauf metadata.json qu'on veut garder
-!metadata.json
-!config.json
-!per_class_metrics.json
 
 # Logs
 logs/
@@ -51,9 +53,10 @@ logs/
 # Results
 results/
 outputs/
-*.png  # Sauf quelques images importantes
-!architecture.png
+*.png
+# EXCEPTION : Garder quelques images importantes
 !confusion_matrix.png
+!architecture.png
 
 # IDE
 .vscode/
@@ -71,7 +74,16 @@ Thumbs.db
 .env.local
 secrets.yaml
 
+# Docker
+.dockerignore
+
 # Temporary files
 tmp/
 temp/
 *.tmp
+test_image.jpg
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/

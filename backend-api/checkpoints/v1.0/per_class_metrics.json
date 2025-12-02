@@ -1,0 +1,30 @@
+{
+  "cardboard": {
+    "accuracy": 79.33884297520662,
+    "num_samples": 242
+  },
+  "e-waste": {
+    "accuracy": 92.05298013245033,
+    "num_samples": 302
+  },
+  "glass": {
+    "accuracy": 82.28346456692913,
+    "num_samples": 254
+  },
+  "medical": {
+    "accuracy": 85.27918781725889,
+    "num_samples": 197
+  },
+  "metal": {
+    "accuracy": 84.61538461538461,
+    "num_samples": 260
+  },
+  "paper": {
+    "accuracy": 81.85185185185185,
+    "num_samples": 270
+  },
+  "plastic": {
+    "accuracy": 78.35820895522389,
+    "num_samples": 268
+  }
+}

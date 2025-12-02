@@ -1,0 +1,38 @@
+
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: recyclemoi-api:latest
+    container_name: recyclemoi-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Monter le code pour le développement (hot reload)
+      - ./api:/app/api
+      - ./src:/app/src
+      # Monter les checkpoints (évite de les copier dans l'image)
+      - ./checkpoints:/app/checkpoints
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Service optionnel pour le monitoring (Prometheus - à venir)
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+networks:
+  default:
+    name: recyclemoi-network
