@@ -65,24 +65,6 @@ def download_model_from_url(url: str, checkpoint_path: str):
         if Path(checkpoint_path).exists():
             Path(checkpoint_path).unlink()
         raise
-
-# Dans la classe ModelLoader, méthode load()
-def load(self, checkpoint_path: str, metadata_path: str = None):
-    """Charge le modèle"""
-    if self._model is not None:
-        print("⚠️  Modèle déjà chargé")
-        return
-    
-    print("🔄 Chargement du modèle...")
-    
-    # URL du modèle (depuis variable d'environnement ou défaut)
-    model_url = os.getenv(
-        'MODEL_URL',
-        'https://huggingface.co/bahani/recyclemoi-resnet18/blob/main/best_model.pth'
-    )
-    
-    # Télécharger si absent
-    download_model_from_url(model_url, checkpoint_path)
     
 
 
@@ -102,57 +84,26 @@ class ModelLoader:
             cls._instance = super().__new__(cls)
         return cls._instance
     
+
+    # Dans la classe ModelLoader, méthode load()
     def load(self, checkpoint_path: str, metadata_path: str = None):
-        """
-        Charge le modèle et ses métadonnées
-        
-        Args:
-            checkpoint_path: Chemin vers le fichier .pth
-            metadata_path: Chemin vers metadata.json (optionnel)
-        """
+        """Charge le modèle"""
         if self._model is not None:
             print("⚠️  Modèle déjà chargé")
             return
         
         print("🔄 Chargement du modèle...")
         
-        # Device
-        self._device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        print(f"   Device: {self._device}")
+        # URL du modèle (depuis variable d'environnement ou défaut)
+        model_url = os.getenv(
+            'MODEL_URL',
+            'https://huggingface.co/bahani/recyclemoi-resnet18/blob/main/best_model.pth'
+        )
         
-        # Charger le modèle
-        self._model = load_model(checkpoint_path, device=str(self._device))
-        self._model.eval()
-        print(f"   ✅ Modèle chargé: {checkpoint_path}")
-        
-        # Charger métadonnées
-        if metadata_path and Path(metadata_path).exists():
-            with open(metadata_path, 'r') as f:
-                self._metadata = json.load(f)
-            print(f"   ✅ Métadonnées chargées: {metadata_path}")
-        else:
-            # Métadonnées par défaut depuis config
-            self._metadata = {
-                'version': '1.0',
-                'architecture': 'resnet18',
-                'num_classes': config.get('data.num_classes'),
-                'classes': config.get('data.classes'),
-                'results': {
-                    'test_accuracy': 83.55
-                }
-            }
-            print("   ⚠️  Métadonnées par défaut utilisées")
-        
-        # Classes
-        self._classes = self._metadata.get('data', {}).get('classes') or config.get('data.classes')
-        
-        # Transforms
-        mean = config.get('data.mean')
-        std = config.get('data.std')
-        self._transforms = transforms.get_inference_transforms(mean=mean, std=std)
-        print(f"   ✅ Transforms configurés")
-        
-        print("✅ Modèle prêt pour les prédictions")
+        # Télécharger si absent
+        download_model_from_url(model_url, checkpoint_path)
+
+    
     
     def predict(self, image: Image.Image) -> Dict[str, Any]:
         """
