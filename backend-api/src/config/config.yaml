@@ -4,6 +4,19 @@ project:
   version: "1.0.0"
   description: "Classification de déchets par deep learning"
 
+
+# Classes
+NUM_CLASSES: 7
+CLASSES:
+  - cardboard
+  - e-waste
+  - glass
+  - medical
+  - metal
+  - paper
+  - plastic
+
+
 # Dataset
 data:
   data_dir: "/mnt/d/VENV/Recycle moi/dataset"
@@ -16,6 +29,8 @@ data:
     - paper
     - plastic
   num_classes: 7
+
+  
   
   # Stats de normalisation (calculées sur notre dataset)
   mean: [0.649, 0.630, 0.602]
