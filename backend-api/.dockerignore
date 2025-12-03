@@ -1,0 +1,107 @@
+# ============================================
+# .dockerignore pour Recycle-moi API
+# Exclut les fichiers inutiles de l'image Docker
+# ============================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# Tests
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Dataset (TRÈS LOURD - ne jamais copier dans Docker)
+/dataset/
+/data/
+*.csv
+
+# Modèles PyTorch (on les télécharge depuis Hugging Face)
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+
+# EXCEPTION : Garder metadata si besoin
+!checkpoints/v1.0/metadata.json
+!checkpoints/v1.0/config.yaml
+
+# Logs
+logs/
+*.log
+
+# Results
+results/
+outputs/
+*.png
+*.jpg
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# GitHub
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment files (SÉCURITÉ)
+.env
+.env.local
+.env.*
+secrets.yaml
+secrets.json
+
+# Docker (pas besoin dans l'image)
+Dockerfile*
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+docs/
+
+# Scripts de développement
+scripts/train.py
+scripts/evaluate.py
+scripts/create_version.py
+notebooks/
+
+# Dépendances locales
+venv/
+env/
+ENV/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.bak
+test_image.jpg
+
+# CI/CD
+.tox/
+.nox/

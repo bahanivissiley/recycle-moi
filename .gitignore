@@ -53,6 +53,8 @@ logs/
 results/
 outputs/
 *.png
+*.jpg
+*.jpeg 
 # EXCEPTION : Garder quelques images importantes
 !confusion_matrix.png
 !architecture.png
@@ -72,9 +74,6 @@ Thumbs.db
 .env
 .env.local
 secrets.yaml
-
-# Docker
-.dockerignore
 
 # Temporary files
 tmp/
