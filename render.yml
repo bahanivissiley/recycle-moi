@@ -4,7 +4,7 @@ services:
     env: docker
     dockerfilePath: ./backend-api/Dockerfile
     dockerContext: ./backend-api
-    region: frankfurt  # ou oregon, singapore selon ta localisation
+    region: frankfurt  # Ou oregon/singapore
     plan: free
     healthCheckPath: /health
     envVars:
@@ -12,4 +12,5 @@ services:
         value: "1"
       - key: PORT
         value: "8000"
-    # Volumes pour le modèle (à configurer dans Render dashboard)
+      - key: MODEL_URL
+        value: https://huggingface.co/bahani/recyclemoi-resnet18/blob/main/best_model.pth
