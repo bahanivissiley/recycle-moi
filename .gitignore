@@ -43,7 +43,6 @@ wheels/
 
 # Datasets (trop lourds)
 dataset/
-data/
 *.csv
 
 # Logs

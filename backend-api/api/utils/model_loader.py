@@ -10,8 +10,8 @@ import json
 from typing import Optional, Dict, Any
 from PIL import Image
 
+from src.data import transforms
 from src.models.resnet import load_model
-from src.data.transforms import get_inference_transforms
 from src.config import config
 
 class ModelLoader:
@@ -77,7 +77,7 @@ class ModelLoader:
         # Transforms
         mean = config.get('data.mean')
         std = config.get('data.std')
-        self._transforms = get_inference_transforms(mean=mean, std=std)
+        self._transforms = transforms.get_inference_transforms(mean=mean, std=std)
         print(f"   ✅ Transforms configurés")
         
         print("✅ Modèle prêt pour les prédictions")
