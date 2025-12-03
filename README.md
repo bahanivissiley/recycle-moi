@@ -12,8 +12,8 @@ Du training au déploiement sur Play Store.
 Projet fil rouge pour maîtriser le cycle complet d'un projet IA :
 - ✅ Machine Learning (Deep Learning avec PyTorch)
 - ✅ MLOps (Versioning, Pipeline, Reproductibilité)
-- 🔄 Backend API (FastAPI)
-- 🔄 DevOps (Docker, CI/CD)
+- ✅ Backend API (FastAPI)
+- ✅ DevOps (Docker, CI/CD)
 - 🔄 Mobile App (Flutter)
 - 🔄 Déploiement (Render + Play Store)
 
@@ -116,15 +116,15 @@ flutter run
   - [x] Structuration code
   - [x] Model versioning
   
-- [ ] Phase 3 : API Backend (Semaine 2) 🔄
-  - [ ] FastAPI setup
-  - [ ] Endpoints prédiction
-  - [ ] Tests
+- [x] Phase 3 : API Backend (Semaine 2) 🔄
+  - [x] FastAPI setup
+  - [x] Endpoints prédiction
+  - [x] Tests
   
-- [ ] Phase 4 : DevOps (Semaine 3)
-  - [ ] Dockerisation
-  - [ ] CI/CD
-  - [ ] Déploiement Render
+- [x] Phase 4 : DevOps (Semaine 3)
+  - [x] Dockerisation
+  - [x] CI/CD
+  - [x] Déploiement Render
   
 - [ ] Phase 5 : Mobile App (Semaine 4)
   - [ ] UI Flutter
