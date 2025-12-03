@@ -1,15 +1,26 @@
-services:
-  - type: web
-    name: recyclemoi-api
-    env: docker
-    dockerfilePath: ./backend-api/Dockerfile
-    dockerContext: ./backend-api
-    region: frankfurt  # ou oregon, singapore selon ta localisation
-    plan: free
-    healthCheckPath: /health
-    envVars:
-      - key: PYTHONUNBUFFERED
-        value: "1"
-      - key: PORT
-        value: "8000"
-    # Volumes pour le modèle (à configurer dans Render dashboard)
+name: Deploy to Render
+
+on:
+  workflow_dispatch:  # Déploiement manuel seulement
+  # push:
+  #   branches: [ main ]  # Décommenter pour déploiement automatique
+
+jobs:
+  deploy:
+    name: Trigger Render Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🚀 Trigger Render deployment
+      run: |
+        echo "🎯 Déploiement sur Render..."
+        echo "Render détectera automatiquement les changements"
+        echo "Ou déploie manuellement depuis le dashboard Render"
+    
+    - name: ✅ Deploy initiated
+      run: |
+        echo "✅ Le déploiement sera effectué par Render"
+        echo "📊 Vérifie le dashboard : https://dashboard.render.com"

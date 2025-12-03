@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  PYTHONPATH: ${{ github.workspace }}
-
 jobs:
   test:
     name: Tests Python
@@ -35,45 +32,34 @@ jobs:
       working-directory: ./backend-api
       run: |
         python -m pip install --upgrade pip
-        pip install pytest pytest-cov
-        # Installer PyTorch CPU-only (plus léger pour CI)
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-        pip install -r requirements-docker.txt
+        # PyTorch CPU
+        pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+        # Installer le package en mode éditable (résout les imports)
+        pip install -e .
+        # Tests
+        pip install pytest pytest-cov httpx
     
-    - name: 🧪 Run tests
+    - name: 🧪 Test imports
       working-directory: ./backend-api
       run: |
-        # Tests unitaires (accepter que certains tests échouent si modèle absent)
-        pytest tests/ -v --tb=short -x || echo "⚠️ Certains tests ont échoué (normal sans le modèle)"
-    
-    - name: 🧪 Test basic imports
-      working-directory: ./backend-api
-      run: |
-        # Vérifier que les modules de base s'importent
         python -c "import torch; print(f'✅ PyTorch: {torch.__version__}')"
         python -c "import fastapi; print(f'✅ FastAPI: {fastapi.__version__}')"
-        
-        # Tester les imports src/
-        python -c "import sys; sys.path.insert(0, '.'); from src.config import config; print('✅ Config OK')"
-        python -c "import sys; sys.path.insert(0, '.'); from src.models.resnet import create_resnet18; print('✅ Model creation OK')"
-        
-        # Tester l'app FastAPI (le plus important)
-        python -c "import sys; sys.path.insert(0, '.'); from api.main import app; print('✅ FastAPI app OK')"
+        python -c "from src.config import config; print('✅ Config OK')"
+        python -c "from src.models.resnet import create_resnet18; print('✅ Model OK')"
+        python -c "from api.main import app; print('✅ App OK')"
     
-    - name: 🎯 Lint code (optionnel)
+    - name: 🧪 Run pytest
       working-directory: ./backend-api
+      continue-on-error: true
       run: |
-        pip install flake8
-        # Vérifier le code Python (ignorer les erreurs pour l'instant)
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
+        pytest tests/ -v --tb=short
     
-    - name: ✅ Tests passed
-      run: echo "🎉 All tests passed!"
+    - name: ✅ Tests completed
+      run: echo "🎉 CI completed!"
 
   docker-test:
     name: Test Docker Build
     runs-on: ubuntu-latest
-    needs: test
     
     steps:
     - name: 📥 Checkout code
@@ -82,10 +68,10 @@ jobs:
     - name: 🐳 Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     
-    - name: 🏗️ Build Docker image (test)
+    - name: 🏗️ Build Docker image
       working-directory: ./backend-api
       run: |
         docker build -t recyclemoi-api:test .
     
-    - name: ✅ Docker build successful
-      run: echo "🐳 Docker image built successfully!"
+    - name: ✅ Docker OK
+      run: echo "🐳 Build successful!"
