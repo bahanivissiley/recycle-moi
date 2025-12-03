@@ -1,22 +1,41 @@
 name: Deploy to Render
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Manuel
+  push:
+    branches: [ main ]  # ← AJOUTER : Automatique sur push vers main
 
 jobs:
   deploy:
+    name: Deploy to Render
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: 📥 Checkout code
       uses: actions/checkout@v4
 
-    - name: Trigger Render Deployment
+    - name: 🚀 Trigger Render Deployment
       env:
         RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
       run: |
+        if [ -z "$RENDER_API_KEY" ] || [ -z "$RENDER_SERVICE_ID" ]; then
+          echo "⚠️  RENDER_API_KEY ou RENDER_SERVICE_ID non configuré"
+          echo "ℹ️  Render déploiera automatiquement via GitHub webhook"
+          exit 0
+        fi
+        
+        echo "🚀 Déclenchement du déploiement Render..."
+        
         curl -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
           -H "Authorization: Bearer $RENDER_API_KEY" \
           -H "Content-Type: application/json" \
-          -d '{}'
+          -d '{"clearCache": false}' \
+          --fail --silent --show-error
+        
+        if [ $? -eq 0 ]; then
+          echo "✅ Déploiement déclenché avec succès !"
+        else
+          echo "❌ Erreur lors du déclenchement"
+          exit 1
+        fi

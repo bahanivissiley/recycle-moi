@@ -118,7 +118,8 @@ class ModelLoader:
         print(f"   Device: {self._device}")
         
         # Charger le modèle
-        self._model = load_model(num_classes=config.NUM_CLASSES)
+        num_classes = getattr(config, 'NUM_CLASSES', 7)  # Défaut: 7 classes
+        self._model = load_model(num_classes=num_classes)
         
         # Charger les poids
         checkpoint = torch.load(checkpoint_path, map_location=self._device)
@@ -133,7 +134,9 @@ class ModelLoader:
         print("   ✅ Transforms configurés")
         
         # Charger les classes
-        self._classes = config.CLASSES
+        self._classes = getattr(config, 'CLASSES', [
+            'cardboard', 'e-waste', 'glass', 'medical', 'metal', 'paper', 'plastic'
+        ])
         
         # Charger les métadonnées (optionnel)
         if metadata_path and Path(metadata_path).exists():
