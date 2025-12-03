@@ -24,29 +24,43 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('backend-api/requirements-docker.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend-api/setup.py') }}
         restore-keys: |
           ${{ runner.os }}-pip-
     
-    - name: 📥 Install dependencies
+    - name: 📥 Install PyTorch
       working-directory: ./backend-api
       run: |
         python -m pip install --upgrade pip
-        # PyTorch CPU
         pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
-        # Installer le package en mode éditable (résout les imports)
-        pip install -e .
-        # Tests
-        pip install pytest pytest-cov httpx
     
-    - name: 🧪 Test imports
+    - name: 📦 Install package
       working-directory: ./backend-api
       run: |
-        python -c "import torch; print(f'✅ PyTorch: {torch.__version__}')"
-        python -c "import fastapi; print(f'✅ FastAPI: {fastapi.__version__}')"
-        python -c "from src.config import config; print('✅ Config OK')"
-        python -c "from src.models.resnet import create_resnet18; print('✅ Model OK')"
-        python -c "from api.main import app; print('✅ App OK')"
+        # Installer le package en mode éditable (installe FastAPI + deps)
+        pip install -e .
+    
+    - name: 📦 Install test dependencies
+      working-directory: ./backend-api
+      run: |
+        pip install pytest pytest-cov httpx
+    
+    - name: 🧪 Verify installations
+      working-directory: ./backend-api
+      run: |
+        echo "📦 Vérification des installations:"
+        python -c "import torch; print(f'  ✅ PyTorch: {torch.__version__}')"
+        python -c "import fastapi; print(f'  ✅ FastAPI: {fastapi.__version__}')"
+        python -c "import pydantic; print(f'  ✅ Pydantic: {pydantic.__version__}')"
+        python -c "import pytest; print(f'  ✅ Pytest: {pytest.__version__}')"
+    
+    - name: 🧪 Test module imports
+      working-directory: ./backend-api
+      run: |
+        echo "🧪 Test des imports de modules:"
+        python -c "from src.config import config; print('  ✅ Config')"
+        python -c "from src.models.resnet import create_resnet18; print('  ✅ Model')"
+        python -c "from api.main import app; print('  ✅ App')"
     
     - name: 🧪 Run pytest
       working-directory: ./backend-api
@@ -54,8 +68,8 @@ jobs:
       run: |
         pytest tests/ -v --tb=short
     
-    - name: ✅ Tests completed
-      run: echo "🎉 CI completed!"
+    - name: ✅ All tests passed
+      run: echo "🎉 All CI checks completed successfully!"
 
   docker-test:
     name: Test Docker Build
@@ -73,5 +87,5 @@ jobs:
       run: |
         docker build -t recyclemoi-api:test .
     
-    - name: ✅ Docker OK
-      run: echo "🐳 Build successful!"
+    - name: ✅ Docker build successful
+      run: echo "🐳 Docker image built successfully!"
