@@ -20,42 +20,49 @@ jobs:
       with:
         python-version: '3.11'
     
+    - name: 📦 Cache pip
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend-api/setup.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
     - name: 📥 Install dependencies
       working-directory: ./backend-api
       run: |
-        python -m pip install --upgrade pip
+        python -m pip install --upgrade pip setuptools wheel
+        # PyTorch CPU
         pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+        # FastAPI et dépendances
         pip install fastapi uvicorn pydantic pyyaml pillow numpy python-multipart
+        # Installer le package en mode éditable
+        pip install -e .
+        # Tests
         pip install pytest pytest-cov httpx
     
     - name: 🧪 Verify installations
       working-directory: ./backend-api
       run: |
-        echo "📦 Versions:"
-        python -c "import torch; print(f'  ✅ PyTorch: {torch.__version__}')"
-        python -c "import fastapi; print(f'  ✅ FastAPI: {fastapi.__version__}')"
+        python -c "import torch; print('✅ PyTorch:', torch.__version__)"
+        python -c "import fastapi; print('✅ FastAPI:', fastapi.__version__)"
+        python -c "import pydantic; print('✅ Pydantic:', pydantic.__version__)"
     
-    - name: 🧪 Test imports with PYTHONPATH
+    - name: 🧪 Test imports
       working-directory: ./backend-api
-      env:
-        PYTHONPATH: ${{ github.workspace }}/backend-api
       run: |
-        echo "PYTHONPATH=$PYTHONPATH"
-        echo "🧪 Test des imports:"
-        python -c "from src.config import config; print('  ✅ Config')"
-        python -c "from src.models.resnet import create_resnet18; print('  ✅ Model')"
-        python -c "from api.main import app; print('  ✅ App')"
+        python -c "from src.config import config; print('✅ Config')"
+        python -c "from src.models.resnet import create_resnet18; print('✅ Model')"
+        python -c "from api.main import app; print('✅ App')"
     
-    - name: 🧪 Run pytest with PYTHONPATH
+    - name: 🧪 Run pytest
       working-directory: ./backend-api
-      env:
-        PYTHONPATH: ${{ github.workspace }}/backend-api
       continue-on-error: true
       run: |
         pytest tests/ -v --tb=short
     
-    - name: ✅ Tests completed
-      run: echo "🎉 CI completed!"
+    - name: ✅ Success
+      run: echo "🎉 All CI checks passed!"
 
   docker-test:
     name: Test Docker Build
