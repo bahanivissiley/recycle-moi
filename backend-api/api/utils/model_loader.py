@@ -103,6 +103,32 @@ class ModelLoader:
         # Télécharger si absent
         download_model_from_url(model_url, checkpoint_path)
 
+        print("🔄 Chargement dans PyTorch...")
+
+        # ---- ⚠️ TON ERREUR ÉTAIT ICI : rien n'était chargé ----
+        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Charger le modèle
+        self._model = load_model(num_classes=config.NUM_CLASSES)
+        self._model.load_state_dict(torch.load(checkpoint_path, map_location=self._device))
+        self._model.to(self._device)
+        self._model.eval()
+
+        # Charger les transforms
+        self._transforms = transforms.get_transforms()["test"]
+
+        # Charger les classes
+        self._classes = config.CLASSES
+
+        # Charger les métadonnées (optionnel)
+        if metadata_path and Path(metadata_path).exists():
+            with open(metadata_path, "r") as f:
+                self._metadata = json.load(f)
+        else:
+            self._metadata = {"classes": self._classes}
+
+        print("✅ Modèle chargé et prêt.")
+
     
     
     def predict(self, image: Image.Image) -> Dict[str, Any]:
