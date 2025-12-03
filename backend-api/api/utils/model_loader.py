@@ -1,8 +1,3 @@
-"""
-Chargeur de modèle singleton pour l'API
-Le modèle est chargé une seule fois au démarrage
-"""
-
 import sys
 from pathlib import Path
 
