@@ -1,6 +1,5 @@
 """
 Chargeur de modèle singleton pour l'API
-Le modèle est chargé une seule fois au démarrage
 """
 
 import sys
@@ -14,22 +13,16 @@ import torch
 import json
 import os
 import requests
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from PIL import Image
 
 from src.data import transforms
-from src.models.resnet import load_model
+from src.models.resnet import create_resnet18  # ← create au lieu de load
 from src.config import config
 
 
 def download_model_from_url(url: str, checkpoint_path: str):
-    """
-    Télécharge le modèle depuis une URL si absent
-    
-    Args:
-        url: URL du modèle
-        checkpoint_path: Chemin local où sauvegarder
-    """
+    """Télécharge le modèle depuis une URL si absent"""
     if Path(checkpoint_path).exists():
         print(f"✅ Modèle déjà présent : {checkpoint_path}")
         return
@@ -37,11 +30,9 @@ def download_model_from_url(url: str, checkpoint_path: str):
     print(f"📥 Téléchargement du modèle depuis {url}...")
     
     try:
-        # Créer le dossier si nécessaire
         Path(checkpoint_path).parent.mkdir(parents=True, exist_ok=True)
         
-        # Télécharger avec progress et timeout plus long
-        response = requests.get(url, stream=True, timeout=600)  # 10 min timeout
+        response = requests.get(url, stream=True, timeout=600)
         response.raise_for_status()
         
         total_size = int(response.headers.get('content-length', 0))
@@ -53,7 +44,6 @@ def download_model_from_url(url: str, checkpoint_path: str):
                     f.write(chunk)
                     downloaded += len(chunk)
                     
-                    # Progress
                     if total_size > 0:
                         percent = (downloaded / total_size) * 100
                         mb_downloaded = downloaded / 1024 / 1024
@@ -63,23 +53,21 @@ def download_model_from_url(url: str, checkpoint_path: str):
         print(f"\n✅ Modèle téléchargé : {checkpoint_path}")
         
     except Exception as e:
-        print(f"❌ Erreur lors du téléchargement : {e}")
-        # Supprimer le fichier partiel
+        print(f"❌ Erreur téléchargement : {e}")
         if Path(checkpoint_path).exists():
             Path(checkpoint_path).unlink()
         raise
 
 
 class ModelLoader:
-    """
-    Singleton pour charger et gérer le modèle
-    """
+    """Singleton pour charger et gérer le modèle"""
+    
     _instance: Optional['ModelLoader'] = None
     _model: Optional[torch.nn.Module] = None
     _metadata: Optional[Dict[str, Any]] = None
     _transforms = None
     _device = None
-    _classes = None
+    _classes: List[str] = None
     
     def __new__(cls):
         if cls._instance is None:
@@ -87,95 +75,104 @@ class ModelLoader:
         return cls._instance
     
     def load(self, checkpoint_path: str, metadata_path: str = None):
-        """
-        Charge le modèle et ses métadonnées
+        """Charge le modèle et ses métadonnées"""
         
-        Args:
-            checkpoint_path: Chemin vers le checkpoint du modèle
-            metadata_path: Chemin vers les métadonnées (optionnel)
-        """
         if self._model is not None:
             print("⚠️  Modèle déjà chargé")
             return
         
         print("🔄 Chargement du modèle...")
         
-        # URL du modèle (depuis variable d'environnement ou défaut)
+        # URL du modèle
         model_url = os.getenv(
             'MODEL_URL',
             'https://huggingface.co/bahani/recyclemoi-resnet18/resolve/main/best_model.pth'
         )
         
-        print(f"📍 URL du modèle : {model_url}")
+        print(f"📍 URL : {model_url}")
         
-        # Télécharger le modèle si absent
+        # Télécharger le modèle
         download_model_from_url(model_url, checkpoint_path)
         
         print("🔄 Chargement dans PyTorch...")
         
-        # Déterminer le device
+        # Device
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"   Device: {self._device}")
         
-        # Charger le modèle
-        num_classes = getattr(config, 'NUM_CLASSES', 7)  # Défaut: 7 classes
-        self._model = load_model(num_classes=num_classes)
-        
-        # Charger les poids
-        checkpoint = torch.load(checkpoint_path, map_location=self._device)
-        self._model.load_state_dict(checkpoint)
-        self._model.to(self._device)
-        self._model.eval()
-        
-        print("   ✅ Modèle chargé dans PyTorch")
-        
-        # Charger les transforms
-        self._transforms = transforms.get_transforms()["test"]
-        print("   ✅ Transforms configurés")
-        
-        # Charger les classes
+        # Classes
         self._classes = getattr(config, 'CLASSES', [
             'cardboard', 'e-waste', 'glass', 'medical', 'metal', 'paper', 'plastic'
         ])
+        num_classes = len(self._classes)
         
-        # Charger les métadonnées (optionnel)
+        print(f"   Classes ({num_classes}): {', '.join(self._classes)}")
+        
+        # Créer et charger le modèle
+        try:
+            # Créer l'architecture
+            self._model = create_resnet18(
+                num_classes=num_classes,
+                pretrained=False
+            )
+            print("   ✅ Architecture créée")
+            
+            # Charger les poids
+            checkpoint = torch.load(checkpoint_path, map_location=self._device)
+            self._model.load_state_dict(checkpoint)
+            self._model.to(self._device)
+            self._model.eval()
+            print("   ✅ Poids chargés")
+            
+        except Exception as e:
+            print(f"   ❌ Erreur chargement: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
+        
+        # Transforms
+        try:
+            self._transforms = transforms.get_transforms()["test"]
+            print("   ✅ Transforms configurés")
+        except Exception as e:
+            print(f"   ⚠️  Transforms par défaut: {e}")
+            from torchvision import transforms as T
+            self._transforms = T.Compose([
+                T.Resize((224, 224)),
+                T.ToTensor(),
+                T.Normalize(mean=[0.649, 0.630, 0.602], std=[0.211, 0.212, 0.222])
+            ])
+        
+        # Métadonnées
         if metadata_path and Path(metadata_path).exists():
             with open(metadata_path, "r") as f:
                 self._metadata = json.load(f)
             print("   ✅ Métadonnées chargées")
         else:
-            # Métadonnées par défaut
             self._metadata = {
                 "version": "1.0",
                 "model": {
                     "architecture": "resnet18",
-                    "num_classes": len(self._classes)
+                    "num_classes": num_classes
                 },
                 "data": {
                     "classes": self._classes,
-                    "num_classes": len(self._classes)
+                    "num_classes": num_classes
                 },
                 "results": {
                     "test_accuracy": 83.55
                 },
                 "created_at": "2024-12-02"
             }
-            print("   ℹ️  Métadonnées par défaut utilisées")
+            print("   ℹ️  Métadonnées par défaut")
         
-        print("✅ Modèle chargé et prêt !")
+        print("✅ Modèle prêt !")
     
     def predict(self, image: Image.Image) -> Dict[str, Any]:
-        """
-        Fait une prédiction sur une image
+        """Prédiction sur une image"""
         
-        Args:
-            image: Image PIL
-            
-        Returns:
-            Dictionnaire avec predicted_class, confidence, all_probabilities
-        """
         if self._model is None:
-            raise RuntimeError("Modèle non chargé. Appelez load() d'abord.")
+            raise RuntimeError("Modèle non chargé")
         
         # Prétraitement
         image_tensor = self._transforms(image).unsqueeze(0).to(self._device)
@@ -201,7 +198,7 @@ class ModelLoader:
         }
     
     def get_metadata(self) -> Dict[str, Any]:
-        """Retourne les métadonnées du modèle"""
+        """Retourne les métadonnées"""
         if self._metadata is None:
             raise RuntimeError("Métadonnées non chargées")
         return self._metadata
